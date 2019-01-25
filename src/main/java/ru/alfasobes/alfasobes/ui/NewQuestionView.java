@@ -12,18 +12,18 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.*;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.UIScope;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.vaadin.pekka.WysiwygE;
 import ru.alfasobes.alfasobes.dao.QuestionRepository;
 import ru.alfasobes.alfasobes.model.Question;
 import ru.alfasobes.alfasobes.util.Const;
+import ru.alfasobes.alfasobes.util.VaadinUtils;
 
 import javax.annotation.PostConstruct;
 
-@Route(value = Const.NEW_QUESTION_PAGE,layout = View.class)
-@StyleSheet("a.css")
+@Route(value = Const.NEW_QUESTION_PAGE,layout = MainView.class)
+@StyleSheet(Const.STYLES)
 @Component
 @UIScope
 public class NewQuestionView extends VerticalLayout {
@@ -50,11 +50,11 @@ public class NewQuestionView extends VerticalLayout {
         add(save);
 
         binder.forField(question)
-                .withValidator(simpleValidator())
+                .withValidator(VaadinUtils.simpleValidator())
                 .bind(Question::getQuestion,Question::setQuestion);
 
         binder.forField(categories)
-                .withValidator(simpleValidator())
+                .withValidator(VaadinUtils.simpleValidator())
                 .bind(Question::getCategories,Question::setCategories);
 
         binder.bind(wysiwygE,Question::getHint,Question::setHint);
@@ -75,10 +75,6 @@ public class NewQuestionView extends VerticalLayout {
 
     }
 
-    private Validator<String> simpleValidator() {
-        return (Validator<String>) (s, valueContext) -> StringUtils.isBlank(s)
-                ? ValidationResult.error("введите значение")
-                : ValidationResult.ok();
-    }
+
 
 }

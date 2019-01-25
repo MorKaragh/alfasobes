@@ -19,4 +19,7 @@ public class Candidate {
     @OneToMany(cascade = {CascadeType.ALL})
     private List<Interview> interviews = new ArrayList<>();
 
+    public void addInterview(Interview interview) {
+        interviews.add(interview);
+    }
 }
