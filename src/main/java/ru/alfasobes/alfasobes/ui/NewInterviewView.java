@@ -14,6 +14,7 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.alfasobes.alfasobes.dao.CandidateRepository;
+import ru.alfasobes.alfasobes.dao.InterviewRepository;
 import ru.alfasobes.alfasobes.dao.QuestionRepository;
 import ru.alfasobes.alfasobes.model.Candidate;
 import ru.alfasobes.alfasobes.model.Interview;
@@ -44,6 +45,9 @@ public class NewInterviewView extends VerticalLayout {
     @Autowired
     private CandidateRepository candidateRepository;
 
+    @Autowired
+    private InterviewRepository interviewRepository;
+
     @PostConstruct
     public void postConstruct(){
 
@@ -62,6 +66,7 @@ public class NewInterviewView extends VerticalLayout {
                     interview.getInterviewQuestions().add(new InterviewQuestion(q));
                 }
                 candidate.addInterview(interview);
+                interview.setCandidate(candidate);
                 candidateRepository.save(candidate);
             } catch (ValidationException e) {
                 e.printStackTrace();

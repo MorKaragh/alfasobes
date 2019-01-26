@@ -17,16 +17,17 @@ public class Interview {
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
 
-    @OneToMany(cascade = {CascadeType.ALL})
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<InterviewQuestion> interviewQuestions = new LinkedList<>();
 
     private Date date;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER, cascade=CascadeType.ALL)
+    @JoinColumn(name = "candidate_id")
     private Candidate candidate;
 
     @Enumerated(EnumType.STRING)
-    private InterviewStatus status;
+    private InterviewStatus status = InterviewStatus.CREATED;
 
     public String getFinishDateString(){
         if (date != null){

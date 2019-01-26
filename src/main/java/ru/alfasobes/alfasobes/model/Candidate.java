@@ -16,7 +16,7 @@ public class Candidate {
 
     private String name;
 
-    @OneToMany(cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Interview> interviews = new ArrayList<>();
 
     public void addInterview(Interview interview) {
