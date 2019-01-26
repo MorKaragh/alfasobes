@@ -64,24 +64,17 @@ public class InterviewJournal extends VerticalLayout {
                 })
         );
 
-        grid.addItemDoubleClickListener(new ComponentEventListener<ItemDoubleClickEvent<Interview>>() {
-            @Override
-            public void onComponentEvent(ItemDoubleClickEvent<Interview> interviewItemDoubleClickEvent) {
-                remove(grid);
-                InterviewDialog interviewDialog = context.getBean(InterviewDialog.class);
-                interviewDialog.setInterview(interviewItemDoubleClickEvent.getItem());
-                add(interviewDialog);
-            }
+        grid.addItemDoubleClickListener((ComponentEventListener<ItemDoubleClickEvent<Interview>>)
+                interviewItemDoubleClickEvent -> {
+            remove(grid);
+            InterviewDialog interviewDialog = context.getBean(InterviewDialog.class);
+            interviewDialog.setInterview(interviewItemDoubleClickEvent.getItem());
+            add(interviewDialog);
         });
 
         add(grid);
 
-        addAttachListener(new ComponentEventListener<AttachEvent>() {
-            @Override
-            public void onComponentEvent(AttachEvent attachEvent) {
-                fillGrid();
-            }
-        });
+        addAttachListener((ComponentEventListener<AttachEvent>) attachEvent -> fillGrid());
 
     }
 

@@ -3,6 +3,7 @@ package ru.alfasobes.alfasobes.ui;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Html;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.StyleSheet;
@@ -82,33 +83,51 @@ public class InterviewDialog extends VerticalLayout {
 
     private void setListeners() {
         next.addClickListener((ComponentEventListener<ClickEvent<Button>>) buttonClickEvent -> {
-            if (currentQuestionIndex < interview.getInterviewQuestions().size() - 1) {
-                currentQuestionIndex++;
-                displayQuestion(getCurrentQuestion());
-            }
+            displayNextQuestion();
         });
 
         prev.addClickListener((ComponentEventListener<ClickEvent<Button>>) buttonClickEvent -> {
-            if (currentQuestionIndex > 0) {
-                currentQuestionIndex--;
-                displayQuestion(getCurrentQuestion());
-            }
+            displayPrevQuestion();
         });
 
         goodAns.addClickListener((ComponentEventListener<ClickEvent<Button>>) buttonClickEvent -> {
-            getCurrentQuestion().setAnswer(InterviewAnswer.GOOD);
-            interviewQuestionRepository.save(getCurrentQuestion());
+            acceptAnswer(InterviewAnswer.GOOD);
         });
 
         badAns.addClickListener((ComponentEventListener<ClickEvent<Button>>) buttonClickEvent -> {
-            getCurrentQuestion().setAnswer(InterviewAnswer.BAD);
-            interviewQuestionRepository.save(getCurrentQuestion());
+            acceptAnswer(InterviewAnswer.BAD);
         });
 
         moderateAns.addClickListener((ComponentEventListener<ClickEvent<Button>>) buttonClickEvent -> {
-            getCurrentQuestion().setAnswer(InterviewAnswer.MODERATE);
-            interviewQuestionRepository.save(getCurrentQuestion());
+            acceptAnswer(InterviewAnswer.MODERATE);
         });
+
+        backToJournal.addClickListener(new ComponentEventListener<ClickEvent<Button>>() {
+            @Override
+            public void onComponentEvent(ClickEvent<Button> buttonClickEvent) {
+                UI.getCurrent().getPage().reload();
+            }
+        });
+    }
+
+    private void acceptAnswer(InterviewAnswer ans) {
+        getCurrentQuestion().setAnswer(ans);
+        interviewQuestionRepository.save(getCurrentQuestion());
+        displayNextQuestion();
+    }
+
+    private void displayNextQuestion() {
+        if (currentQuestionIndex < interview.getInterviewQuestions().size() - 1) {
+            currentQuestionIndex++;
+        }
+        displayQuestion(getCurrentQuestion());
+    }
+
+    private void displayPrevQuestion() {
+        if (currentQuestionIndex > 0) {
+            currentQuestionIndex--;
+        }
+        displayQuestion(getCurrentQuestion());
     }
 
     private InterviewQuestion getCurrentQuestion() {
@@ -120,16 +139,34 @@ public class InterviewDialog extends VerticalLayout {
         displayQuestion(getCurrentQuestion());
     }
 
-    private void displayQuestion(InterviewQuestion nextUnansweredQuestion) {
+    private void displayQuestion(InterviewQuestion question) {
         questionLayout.removeAll();
-        questionLayout.add(new QuestionBlock(nextUnansweredQuestion));
+        questionLayout.add(new QuestionBlock(question));
     }
 
 
     class QuestionBlock extends VerticalLayout {
         QuestionBlock(InterviewQuestion question) {
-            add(new Html("<div><p><H1>" + question.getQuestion().getQuestion() + "</H1></p><p>"
-                    + question.getQuestion().getHint() + "</p></div>"));
+            add(new Html("<H1>" + question.getQuestion().getQuestion() + "</H1>"));
+            add(new Html("<div><p>" + question.getQuestion().getHint() + "</p></div>"));
+            add(statusLabel(question));
+        }
+
+        private com.vaadin.flow.component.Component statusLabel(InterviewQuestion question) {
+            String label = "<H2>-</H2>";
+            if (question.getAnswer() != null)
+                switch (question.getAnswer()) {
+                    case BAD:
+                        label = "<H2>дан <span style=\"color:red\">плохой</span> ответ</H2>";
+                        break;
+                    case GOOD:
+                        label = "<H2>дан <span style=\"color:green\">хороший</span> ответ</H2>";
+                        break;
+                    case MODERATE:
+                        label = "<H2>дан <span style=\"color:blue\">нормальный</span> ответ</H2>";
+                        break;
+                }
+            return new Html(label);
         }
     }
 
