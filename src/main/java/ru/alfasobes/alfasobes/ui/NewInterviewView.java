@@ -1,8 +1,10 @@
 package ru.alfasobes.alfasobes.ui;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -51,10 +53,19 @@ public class NewInterviewView extends VerticalLayout {
     @PostConstruct
     public void postConstruct(){
 
+        addAttachListener(new ComponentEventListener<AttachEvent>() {
+            @Override
+            public void onComponentEvent(AttachEvent attachEvent) {
+                fillGrid();
+            }
+        });
+
         initGrid();
         fillGrid();
 
         binder.forField(name).bind(Candidate::getName,Candidate::setName);
+
+        save.addThemeVariants(ButtonVariant.LUMO_LARGE, ButtonVariant.LUMO_PRIMARY);
 
         save.addClickListener((ComponentEventListener<ClickEvent<Button>>) buttonClickEvent -> {
             try {

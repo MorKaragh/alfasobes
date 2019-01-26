@@ -24,10 +24,14 @@ public class MainView extends AbstractAppRouterLayout {
     protected void configure(AppLayout appLayout, AppLayoutMenu appLayoutMenu) {
         AppLayoutMenu menu = getAppLayout().createMenu();
 
+        AppLayoutMenuItem prepareInterview = new AppLayoutMenuItem("Подготовить интервью", Const.COMPOSE_INTERVIEW_PAGE);
+        AppLayoutMenuItem newQuestion = new AppLayoutMenuItem("Добавить вопрос", Const.NEW_QUESTION_PAGE);
+        AppLayoutMenuItem journal = new AppLayoutMenuItem("Журнал интервью", Const.JOURNAL_PAGE);
+
         menu.addMenuItems(
-                new AppLayoutMenuItem("Журнал интервью", Const.JOURNAL_PAGE),
-                new AppLayoutMenuItem("Добавить вопрос", Const.NEW_QUESTION_PAGE),
-                new AppLayoutMenuItem("Подготовить интервью", Const.COMPOSE_INTERVIEW_PAGE)
+                journal,
+                newQuestion,
+                prepareInterview
         );
 
         getAppLayout().setBranding(new Label("СОБЕСЕДОВАНИЕ"));

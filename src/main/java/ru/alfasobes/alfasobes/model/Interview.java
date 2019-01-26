@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -20,7 +21,7 @@ public class Interview {
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<InterviewQuestion> interviewQuestions = new LinkedList<>();
 
-    private Date date;
+    private LocalDateTime date;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade=CascadeType.ALL)
     @JoinColumn(name = "candidate_id")
