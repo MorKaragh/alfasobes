@@ -75,15 +75,14 @@ public class InterviewDialog extends VerticalLayout {
         prev.addThemeVariants(ButtonVariant.LUMO_LARGE, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_CONTRAST);
 
         HorizontalLayout buttons = new HorizontalLayout();
-        buttons.add(prev,goodAns, moderateAns, badAns,next);
+        buttons.add(prev, goodAns, moderateAns, badAns, next);
 
-        questionLayout.setHeight("90%");
-        add(upperMenu,questionLayout,buttons);
+        add(upperMenu, questionLayout, buttons);
     }
 
     private void setListeners() {
         next.addClickListener((ComponentEventListener<ClickEvent<Button>>) buttonClickEvent -> {
-            if (currentQuestionIndex < interview.getInterviewQuestions().size()-1) {
+            if (currentQuestionIndex < interview.getInterviewQuestions().size() - 1) {
                 currentQuestionIndex++;
                 displayQuestion(getCurrentQuestion());
             }
@@ -128,9 +127,9 @@ public class InterviewDialog extends VerticalLayout {
 
 
     class QuestionBlock extends VerticalLayout {
-        QuestionBlock(InterviewQuestion question){
-            add(new Html("<div><p><H1>"+question.getQuestion().getQuestion()+"</H1></p><p>"+question.getQuestion().getHint()+"</p></div>"));
-
+        QuestionBlock(InterviewQuestion question) {
+            add(new Html("<div><p><H1>" + question.getQuestion().getQuestion() + "</H1></p><p>"
+                    + question.getQuestion().getHint() + "</p></div>"));
         }
     }
 

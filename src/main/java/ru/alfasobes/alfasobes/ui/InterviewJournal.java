@@ -68,7 +68,9 @@ public class InterviewJournal extends VerticalLayout {
             @Override
             public void onComponentEvent(ItemDoubleClickEvent<Interview> interviewItemDoubleClickEvent) {
                 remove(grid);
-                add(context.getBean(InterviewDialog.class));
+                InterviewDialog interviewDialog = context.getBean(InterviewDialog.class);
+                interviewDialog.setInterview(interviewItemDoubleClickEvent.getItem());
+                add(interviewDialog);
             }
         });
 
