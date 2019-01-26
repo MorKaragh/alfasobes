@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import ru.alfasobes.alfasobes.dao.InterviewQuestionRepository;
 import ru.alfasobes.alfasobes.dao.InterviewRepository;
 import ru.alfasobes.alfasobes.model.Interview;
+import ru.alfasobes.alfasobes.model.InterviewAnswer;
 import ru.alfasobes.alfasobes.model.InterviewQuestion;
 import ru.alfasobes.alfasobes.util.Const;
 
@@ -83,24 +84,41 @@ public class InterviewDialog extends VerticalLayout {
     private void setListeners() {
         next.addClickListener((ComponentEventListener<ClickEvent<Button>>) buttonClickEvent -> {
             if (currentQuestionIndex < interview.getInterviewQuestions().size()-1) {
-                displayQuestion(interview.getInterviewQuestions().get(++currentQuestionIndex));
+                currentQuestionIndex++;
+                displayQuestion(getCurrentQuestion());
             }
         });
 
         prev.addClickListener((ComponentEventListener<ClickEvent<Button>>) buttonClickEvent -> {
             if (currentQuestionIndex > 0) {
-                displayQuestion(interview.getInterviewQuestions().get(--currentQuestionIndex));
+                currentQuestionIndex--;
+                displayQuestion(getCurrentQuestion());
             }
         });
 
         goodAns.addClickListener((ComponentEventListener<ClickEvent<Button>>) buttonClickEvent -> {
-
+            getCurrentQuestion().setAnswer(InterviewAnswer.GOOD);
+            interviewQuestionRepository.save(getCurrentQuestion());
         });
+
+        badAns.addClickListener((ComponentEventListener<ClickEvent<Button>>) buttonClickEvent -> {
+            getCurrentQuestion().setAnswer(InterviewAnswer.BAD);
+            interviewQuestionRepository.save(getCurrentQuestion());
+        });
+
+        moderateAns.addClickListener((ComponentEventListener<ClickEvent<Button>>) buttonClickEvent -> {
+            getCurrentQuestion().setAnswer(InterviewAnswer.MODERATE);
+            interviewQuestionRepository.save(getCurrentQuestion());
+        });
+    }
+
+    private InterviewQuestion getCurrentQuestion() {
+        return interview.getInterviewQuestions().get(currentQuestionIndex);
     }
 
     public void setInterview(Interview interview) {
         this.interview = interview;
-        displayQuestion(interview.getInterviewQuestions().get(currentQuestionIndex));
+        displayQuestion(getCurrentQuestion());
     }
 
     private void displayQuestion(InterviewQuestion nextUnansweredQuestion) {
@@ -109,9 +127,10 @@ public class InterviewDialog extends VerticalLayout {
     }
 
 
-    class QuestionBlock extends Html {
+    class QuestionBlock extends VerticalLayout {
         QuestionBlock(InterviewQuestion question){
-            super("<div><p><H1>"+question.getQuestion().getQuestion()+"</H1></p><p>"+question.getQuestion().getHint()+"</p></div>");
+            add(new Html("<div><p><H1>"+question.getQuestion().getQuestion()+"</H1></p><p>"+question.getQuestion().getHint()+"</p></div>"));
+
         }
     }
 

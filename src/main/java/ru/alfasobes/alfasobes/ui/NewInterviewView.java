@@ -7,6 +7,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
@@ -36,7 +37,7 @@ import java.util.Set;
 public class NewInterviewView extends VerticalLayout {
 
     private TextField name = new TextField("ФИО кандидата");
-    private Grid<Question> questionGrid = new Grid<>();
+    private Grid<Question> grid = new Grid<>();
     private Button save = new Button("СОХРАНИТЬ");
 
     @Autowired
@@ -71,7 +72,7 @@ public class NewInterviewView extends VerticalLayout {
             try {
                 Candidate candidate = new Candidate();
                 binder.writeBean(candidate);
-                Set<Question> selectedItems = questionGrid.getSelectedItems();
+                Set<Question> selectedItems = grid.getSelectedItems();
                 Interview interview = new Interview();
                 for (Question q : selectedItems){
                     interview.getInterviewQuestions().add(new InterviewQuestion(q));
@@ -84,21 +85,24 @@ public class NewInterviewView extends VerticalLayout {
             }
         });
 
-        add(name, questionGrid, save);
+        add(name, grid, save);
 
     }
 
     private void initGrid() {
-        questionGrid.addColumn(Question::getQuestion,"вопрос");
-        questionGrid.addColumn(Question::getCategories,"категории");
-        questionGrid.setSelectionMode(Grid.SelectionMode.MULTI);
+        grid.addThemeVariants(GridVariant.LUMO_NO_BORDER,
+                GridVariant.LUMO_NO_ROW_BORDERS, GridVariant.LUMO_ROW_STRIPES);
+
+        grid.addColumn(Question::getQuestion).setHeader("вопрос");
+        grid.addColumn(Question::getCategories).setHeader("категории");
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
     }
 
     private void fillGrid() {
         Iterable<Question> all = questionRepository.findAll();
         List<Question> questions = new ArrayList<>();
         all.forEach(questions::add);
-        questionGrid.setItems(questions);
+        grid.setItems(questions);
     }
 
 }
