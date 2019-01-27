@@ -1,10 +1,13 @@
 package ru.alfasobes.alfasobes.ui;
 
+import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.applayout.AbstractAppRouterLayout;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.AppLayoutMenu;
 import com.vaadin.flow.component.applayout.AppLayoutMenuItem;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.stereotype.Component;
 import ru.alfasobes.alfasobes.util.Const;
@@ -13,6 +16,7 @@ import javax.annotation.PostConstruct;
 
 @Component
 @UIScope
+@Route("")
 public class MainView extends AbstractAppRouterLayout {
 
     @PostConstruct
@@ -34,6 +38,6 @@ public class MainView extends AbstractAppRouterLayout {
                 prepareInterview
         );
 
-        getAppLayout().setBranding(new Label("СОБЕСЕДОВАНИЕ"));
+        getAppLayout().setBranding(new Label("АльфаПодбор"));
     }
 }

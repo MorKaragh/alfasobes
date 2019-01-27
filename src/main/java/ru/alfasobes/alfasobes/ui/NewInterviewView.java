@@ -1,19 +1,20 @@
 package ru.alfasobes.alfasobes.ui;
 
-import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.ClickEvent;
-import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.UIScope;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.alfasobes.alfasobes.dao.CandidateRepository;
@@ -27,6 +28,7 @@ import ru.alfasobes.alfasobes.util.Const;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -37,6 +39,7 @@ import java.util.Set;
 public class NewInterviewView extends VerticalLayout {
 
     private TextField name = new TextField("ФИО кандидата");
+    private TextField filter = new TextField("фильтр по категориям");
     private Grid<Question> grid = new Grid<>();
     private Button save = new Button("СОХРАНИТЬ");
 
@@ -54,17 +57,18 @@ public class NewInterviewView extends VerticalLayout {
     @PostConstruct
     public void postConstruct(){
 
-        addAttachListener(new ComponentEventListener<AttachEvent>() {
-            @Override
-            public void onComponentEvent(AttachEvent attachEvent) {
-                fillGrid();
-            }
-        });
+        addAttachListener((ComponentEventListener<AttachEvent>) attachEvent -> fillGrid());
 
         initGrid();
         fillGrid();
 
+        name.setWidth("500px");
         binder.forField(name).bind(Candidate::getName,Candidate::setName);
+
+        filter.addValueChangeListener((HasValue.ValueChangeListener<AbstractField.ComponentValueChangeEvent<TextField, String>>) textFieldStringComponentValueChangeEvent -> {
+            String searchString = textFieldStringComponentValueChangeEvent.getValue();
+            processSearch(searchString);
+        });
 
         save.addThemeVariants(ButtonVariant.LUMO_LARGE, ButtonVariant.LUMO_PRIMARY);
 
@@ -80,13 +84,57 @@ public class NewInterviewView extends VerticalLayout {
                 candidate.addInterview(interview);
                 interview.setCandidate(candidate);
                 candidateRepository.save(candidate);
+                binder.readBean(null);
+                Notification.show("Сохранено",1000,Notification.Position.MIDDLE);
             } catch (ValidationException e) {
                 e.printStackTrace();
             }
         });
 
-        add(name, grid, save);
+        HorizontalLayout fields = new HorizontalLayout();
+        fields.add(name,filter);
+        add(fields, grid, save);
 
+    }
+
+    private void processSearch(String searchString) {
+
+        if (StringUtils.isBlank(searchString)){
+            fillGrid();
+            return;
+        }
+
+        String[] criteria = searchString.split(" ");
+        List<String> except = new ArrayList<>();
+        List<String> contain = new ArrayList<>();
+        for(String s : criteria){
+            if (s.startsWith("-")){
+                except.add(s.substring(1));
+            } else {
+                contain.add(s);
+            }
+        }
+        if (except.isEmpty() && contain.isEmpty()){
+            return;
+        }
+        Iterable<Question> all = questionRepository.findAll();
+
+        List<Question> selected = new ArrayList<>();
+        quest: for(Question q : all){
+            List<String> cats = Arrays.asList(q.getCategories().split(" "));
+            for (String e : except){
+                if (cats.contains(e)){
+                    continue quest;
+                }
+            }
+            for (String e : contain){
+                if (!cats.contains(e)) {
+                    continue quest;
+                }
+            }
+            selected.add(q);
+        }
+        grid.setItems(selected);
     }
 
     private void initGrid() {

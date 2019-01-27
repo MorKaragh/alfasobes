@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import javax.persistence.*;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,7 +33,8 @@ public class Interview {
 
     public String getFinishDateString(){
         if (date != null){
-            return new SimpleDateFormat("dd.MM.yyyy").format(date);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+            return formatter.format(date);
         }
         return StringUtils.EMPTY;
     }

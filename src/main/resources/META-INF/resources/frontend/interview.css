@@ -4,3 +4,13 @@
   margin-right: auto;
   width: 50%;
 }
+
+.question-layout{
+
+}
+
+.bottom-buttons-menu{
+    position: absolute;
+    bottom: 0px;
+    margin-bottom: 20px;
+}

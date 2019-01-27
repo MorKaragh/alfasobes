@@ -12,8 +12,6 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import ru.alfasobes.alfasobes.dao.InterviewQuestionRepository;
@@ -21,7 +19,10 @@ import ru.alfasobes.alfasobes.dao.InterviewRepository;
 import ru.alfasobes.alfasobes.model.Interview;
 import ru.alfasobes.alfasobes.model.InterviewAnswer;
 import ru.alfasobes.alfasobes.model.InterviewQuestion;
+import ru.alfasobes.alfasobes.model.InterviewStatus;
 import ru.alfasobes.alfasobes.util.Const;
+
+import java.time.LocalDateTime;
 
 @Component
 @Scope("prototype")
@@ -40,9 +41,9 @@ public class InterviewDialog extends VerticalLayout {
     private Button backToJournal = new Button("Назад в журнал");
     private Button finish = new Button("Завершить");
 
-    private Button goodAns = new Button("Хороший ответ");
-    private Button moderateAns = new Button("Более-менее");
-    private Button badAns = new Button("Нет ответа");
+    private Button goodAns = new Button(InterviewAnswer.GOOD.getDescription().toUpperCase());
+    private Button moderateAns = new Button(InterviewAnswer.MODERATE.getDescription().toUpperCase());
+    private Button badAns = new Button(InterviewAnswer.BAD.getDescription().toUpperCase());
 
     private Button next = new Button(new Icon(VaadinIcon.ARROW_FORWARD));
     private Button prev = new Button(new Icon(VaadinIcon.ARROW_BACKWARD));
@@ -56,6 +57,9 @@ public class InterviewDialog extends VerticalLayout {
         setListeners();
     }
 
+    public void addFinishListener(ComponentEventListener<ClickEvent<Button>> listener){
+        finish.addClickListener(listener);
+    }
 
     private void buildLayout() {
         HorizontalLayout upperMenu = new HorizontalLayout();
@@ -76,7 +80,10 @@ public class InterviewDialog extends VerticalLayout {
         prev.addThemeVariants(ButtonVariant.LUMO_LARGE, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_CONTRAST);
 
         HorizontalLayout buttons = new HorizontalLayout();
+        buttons.addClassName("bottom-buttons-menu");
         buttons.add(prev, goodAns, moderateAns, badAns, next);
+
+        questionLayout.addClassName("question-layout");
 
         add(upperMenu, questionLayout, buttons);
     }
@@ -102,12 +109,8 @@ public class InterviewDialog extends VerticalLayout {
             acceptAnswer(InterviewAnswer.MODERATE);
         });
 
-        backToJournal.addClickListener(new ComponentEventListener<ClickEvent<Button>>() {
-            @Override
-            public void onComponentEvent(ClickEvent<Button> buttonClickEvent) {
-                UI.getCurrent().getPage().reload();
-            }
-        });
+        backToJournal.addClickListener((ComponentEventListener<ClickEvent<Button>>)
+                buttonClickEvent -> UI.getCurrent().getPage().reload());
     }
 
     private void acceptAnswer(InterviewAnswer ans) {
@@ -136,6 +139,15 @@ public class InterviewDialog extends VerticalLayout {
 
     public void setInterview(Interview interview) {
         this.interview = interview;
+
+        if (InterviewStatus.FINISHED.equals(interview.getStatus())){
+            throw new RuntimeException("this interview is finished!");
+        }
+
+        interview.setStatus(InterviewStatus.UNFINISHED);
+        interview.setDate(LocalDateTime.now());
+        interviewRepository.save(interview);
+
         displayQuestion(getCurrentQuestion());
     }
 
@@ -157,13 +169,13 @@ public class InterviewDialog extends VerticalLayout {
             if (question.getAnswer() != null)
                 switch (question.getAnswer()) {
                     case BAD:
-                        label = "<H2>дан <span style=\"color:red\">плохой</span> ответ</H2>";
+                        label = "<H2>дан <span style=\"color:"+Const.RED+"\">"+InterviewAnswer.BAD.getDescription().toUpperCase()+"</span></H2>";
                         break;
                     case GOOD:
-                        label = "<H2>дан <span style=\"color:green\">хороший</span> ответ</H2>";
+                        label = "<H2>дан <span style=\"color:"+Const.GREEN+"\">"+InterviewAnswer.GOOD.getDescription().toUpperCase()+"</span></H2>";
                         break;
                     case MODERATE:
-                        label = "<H2>дан <span style=\"color:blue\">нормальный</span> ответ</H2>";
+                        label = "<H2>дан <span style=\"color:"+Const.BLUE+"\">"+InterviewAnswer.MODERATE.getDescription().toUpperCase()+"</span></H2>";
                         break;
                 }
             return new Html(label);
