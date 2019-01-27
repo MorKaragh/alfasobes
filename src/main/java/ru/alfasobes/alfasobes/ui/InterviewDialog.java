@@ -57,27 +57,30 @@ public class InterviewDialog extends VerticalLayout {
         setListeners();
     }
 
-    public void addFinishListener(ComponentEventListener<ClickEvent<Button>> listener){
+    public void addFinishListener(ComponentEventListener<ClickEvent<Button>> listener) {
         finish.addClickListener(listener);
     }
 
     private void buildLayout() {
-        HorizontalLayout upperMenu = new HorizontalLayout();
-        upperMenu.add(backToJournal, finish);
-
         backToJournal.addThemeVariants(ButtonVariant.LUMO_LARGE);
         backToJournal.setIcon(new Icon(VaadinIcon.BACKSPACE));
+
         finish.addThemeVariants(ButtonVariant.LUMO_LARGE);
 
         goodAns.addThemeVariants(ButtonVariant.LUMO_LARGE, ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
-        moderateAns.addThemeVariants(ButtonVariant.LUMO_LARGE, ButtonVariant.LUMO_PRIMARY);
-        badAns.addThemeVariants(ButtonVariant.LUMO_LARGE, ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
         goodAns.setWidth("200px");
+
+        badAns.addThemeVariants(ButtonVariant.LUMO_LARGE, ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
         badAns.setWidth("200px");
+
+        moderateAns.addThemeVariants(ButtonVariant.LUMO_LARGE, ButtonVariant.LUMO_PRIMARY);
         moderateAns.setWidth("200px");
 
         next.addThemeVariants(ButtonVariant.LUMO_LARGE, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_CONTRAST);
         prev.addThemeVariants(ButtonVariant.LUMO_LARGE, ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_CONTRAST);
+
+        HorizontalLayout upperMenu = new HorizontalLayout();
+        upperMenu.add(backToJournal, finish);
 
         HorizontalLayout buttons = new HorizontalLayout();
         buttons.addClassName("bottom-buttons-menu");
@@ -140,7 +143,7 @@ public class InterviewDialog extends VerticalLayout {
     public void setInterview(Interview interview) {
         this.interview = interview;
 
-        if (InterviewStatus.FINISHED.equals(interview.getStatus())){
+        if (InterviewStatus.FINISHED.equals(interview.getStatus())) {
             throw new RuntimeException("this interview is finished!");
         }
 
@@ -169,13 +172,13 @@ public class InterviewDialog extends VerticalLayout {
             if (question.getAnswer() != null)
                 switch (question.getAnswer()) {
                     case BAD:
-                        label = "<H2>дан <span style=\"color:"+Const.RED+"\">"+InterviewAnswer.BAD.getDescription().toUpperCase()+"</span></H2>";
+                        label = "<H2>дан <span style=\"color:" + Const.RED + "\">" + InterviewAnswer.BAD.getDescription().toUpperCase() + "</span></H2>";
                         break;
                     case GOOD:
-                        label = "<H2>дан <span style=\"color:"+Const.GREEN+"\">"+InterviewAnswer.GOOD.getDescription().toUpperCase()+"</span></H2>";
+                        label = "<H2>дан <span style=\"color:" + Const.GREEN + "\">" + InterviewAnswer.GOOD.getDescription().toUpperCase() + "</span></H2>";
                         break;
                     case MODERATE:
-                        label = "<H2>дан <span style=\"color:"+Const.BLUE+"\">"+InterviewAnswer.MODERATE.getDescription().toUpperCase()+"</span></H2>";
+                        label = "<H2>дан <span style=\"color:" + Const.BLUE + "\">" + InterviewAnswer.MODERATE.getDescription().toUpperCase() + "</span></H2>";
                         break;
                 }
             return new Html(label);

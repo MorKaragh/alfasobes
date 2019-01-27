@@ -24,11 +24,11 @@ import ru.alfasobes.alfasobes.model.Candidate;
 import ru.alfasobes.alfasobes.model.Interview;
 import ru.alfasobes.alfasobes.model.InterviewQuestion;
 import ru.alfasobes.alfasobes.model.Question;
+import ru.alfasobes.alfasobes.util.CategorySearcher;
 import ru.alfasobes.alfasobes.util.Const;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -55,7 +55,7 @@ public class NewInterviewView extends VerticalLayout {
     private InterviewRepository interviewRepository;
 
     @PostConstruct
-    public void postConstruct(){
+    public void postConstruct() {
 
         addAttachListener((ComponentEventListener<AttachEvent>) attachEvent -> fillGrid());
 
@@ -63,7 +63,7 @@ public class NewInterviewView extends VerticalLayout {
         fillGrid();
 
         name.setWidth("500px");
-        binder.forField(name).bind(Candidate::getName,Candidate::setName);
+        binder.forField(name).bind(Candidate::getName, Candidate::setName);
 
         filter.addValueChangeListener((HasValue.ValueChangeListener<AbstractField.ComponentValueChangeEvent<TextField, String>>) textFieldStringComponentValueChangeEvent -> {
             String searchString = textFieldStringComponentValueChangeEvent.getValue();
@@ -73,69 +73,44 @@ public class NewInterviewView extends VerticalLayout {
         save.addThemeVariants(ButtonVariant.LUMO_LARGE, ButtonVariant.LUMO_PRIMARY);
 
         save.addClickListener((ComponentEventListener<ClickEvent<Button>>) buttonClickEvent -> {
-            try {
-                Candidate candidate = new Candidate();
-                binder.writeBean(candidate);
-                Set<Question> selectedItems = grid.getSelectedItems();
-                Interview interview = new Interview();
-                for (Question q : selectedItems){
-                    interview.getInterviewQuestions().add(new InterviewQuestion(q));
-                }
-                candidate.addInterview(interview);
-                interview.setCandidate(candidate);
-                candidateRepository.save(candidate);
-                binder.readBean(null);
-                Notification.show("Сохранено",1000,Notification.Position.MIDDLE);
-            } catch (ValidationException e) {
-                e.printStackTrace();
-            }
+            save();
         });
 
         HorizontalLayout fields = new HorizontalLayout();
-        fields.add(name,filter);
+        fields.add(name, filter);
         add(fields, grid, save);
 
     }
 
-    private void processSearch(String searchString) {
+    private void save() {
+        try {
+            Candidate candidate = new Candidate();
+            binder.writeBean(candidate);
+            Set<Question> selectedItems = grid.getSelectedItems();
+            Interview interview = new Interview();
+            for (Question q : selectedItems) {
+                interview.getInterviewQuestions().add(new InterviewQuestion(q));
+            }
+            candidate.addInterview(interview);
+            interview.setCandidate(candidate);
+            candidateRepository.save(candidate);
+            binder.readBean(null);
+            Notification.show("Сохранено", 1000, Notification.Position.MIDDLE);
+        } catch (ValidationException e) {
+            e.printStackTrace();
+        }
+    }
 
-        if (StringUtils.isBlank(searchString)){
+    private void processSearch(String searchString) {
+        if (StringUtils.isBlank(searchString)) {
             fillGrid();
             return;
         }
-
-        String[] criteria = searchString.split(" ");
-        List<String> except = new ArrayList<>();
-        List<String> contain = new ArrayList<>();
-        for(String s : criteria){
-            if (s.startsWith("-")){
-                except.add(s.substring(1));
-            } else {
-                contain.add(s);
-            }
-        }
-        if (except.isEmpty() && contain.isEmpty()){
-            return;
-        }
-        Iterable<Question> all = questionRepository.findAll();
-
-        List<Question> selected = new ArrayList<>();
-        quest: for(Question q : all){
-            List<String> cats = Arrays.asList(q.getCategories().split(" "));
-            for (String e : except){
-                if (cats.contains(e)){
-                    continue quest;
-                }
-            }
-            for (String e : contain){
-                if (!cats.contains(e)) {
-                    continue quest;
-                }
-            }
-            selected.add(q);
-        }
+        List<Question> selected = CategorySearcher.search(searchString, questionRepository.findAll());
+        if (selected == null) return;
         grid.setItems(selected);
     }
+
 
     private void initGrid() {
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER,

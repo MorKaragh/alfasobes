@@ -12,7 +12,7 @@ import java.util.List;
 public class Question {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @Column(name = "question", nullable = false, length = 200)

@@ -4,7 +4,6 @@ import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.IconRenderer;
 import com.vaadin.flow.router.BeforeEvent;
@@ -15,7 +14,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import ru.alfasobes.alfasobes.dao.InterviewRepository;
 import ru.alfasobes.alfasobes.model.Interview;
-import ru.alfasobes.alfasobes.model.InterviewAnswer;
 import ru.alfasobes.alfasobes.model.InterviewQuestion;
 import ru.alfasobes.alfasobes.util.Const;
 
@@ -46,6 +44,11 @@ public class InterviewReport extends VerticalLayout implements HasUrlParameter<S
     private void showReport(Interview interview) {
         add(new Html("<H1>" + interview.getCandidate().getName() + "</H1>"));
         add(new Html("<div>дата интервью: " + interview.getFinishDateString() + "</div>"));
+        Grid<InterviewQuestion> grid = buildGrid(interview);
+        add(grid);
+    }
+
+    private Grid<InterviewQuestion> buildGrid(Interview interview) {
         Grid<InterviewQuestion> grid = new Grid<>();
 
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER,
@@ -54,7 +57,6 @@ public class InterviewReport extends VerticalLayout implements HasUrlParameter<S
         grid.addColumn(question -> question.getQuestion().getQuestion())
                 .setHeader("вопрос")
                 .setSortable(true);
-
 
         grid.addColumn(question -> question.getAnswer().getDescription())
                 .setHeader("ответ")
@@ -82,9 +84,7 @@ public class InterviewReport extends VerticalLayout implements HasUrlParameter<S
 
 
         grid.setItems(interview.getInterviewQuestions().stream().filter(question -> question.getAnswer() != null));
-        add(grid);
-
-
+        return grid;
     }
 
 }

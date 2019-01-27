@@ -2,8 +2,8 @@ package ru.alfasobes.alfasobes.model;
 
 import javax.persistence.Entity;
 
-public enum  InterviewAnswer {
-    GOOD("хороший ответ"),BAD("плохой ответ"),MODERATE("нормальный ответ");
+public enum InterviewAnswer {
+    GOOD("хороший ответ"), BAD("плохой ответ"), MODERATE("нормальный ответ");
 
     private final String description;
 
