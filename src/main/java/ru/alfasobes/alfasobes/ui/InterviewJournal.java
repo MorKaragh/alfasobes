@@ -50,7 +50,7 @@ public class InterviewJournal extends VerticalLayout {
     }
 
     private void createGrid() {
-        grid.addThemeVariants(GridVariant.LUMO_NO_BORDER,
+        grid.addThemeVariants(GridVariant.LUMO_COLUMN_BORDERS,
                 GridVariant.LUMO_NO_ROW_BORDERS, GridVariant.LUMO_ROW_STRIPES);
 
         grid.addColumn(interview -> interview.getCandidate().getName())

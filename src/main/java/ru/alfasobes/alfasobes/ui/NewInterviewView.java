@@ -4,7 +4,9 @@ import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.StyleSheet;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridContextMenu;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -12,10 +14,14 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationException;
+import com.vaadin.flow.data.renderer.ClickableRenderer;
+import com.vaadin.flow.data.renderer.NativeButtonRenderer;
+import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.UIScope;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import ru.alfasobes.alfasobes.dao.CandidateRepository;
 import ru.alfasobes.alfasobes.dao.InterviewRepository;
@@ -30,6 +36,7 @@ import ru.alfasobes.alfasobes.util.Const;
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Component
@@ -53,6 +60,9 @@ public class NewInterviewView extends VerticalLayout {
 
     @Autowired
     private InterviewRepository interviewRepository;
+
+    @Autowired
+    private ApplicationContext context;
 
     @PostConstruct
     public void postConstruct() {
@@ -119,6 +129,25 @@ public class NewInterviewView extends VerticalLayout {
         grid.addColumn(Question::getQuestion).setHeader("вопрос");
         grid.addColumn(Question::getCategories).setHeader("категории");
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
+
+        grid.addColumn(new NativeButtonRenderer<Question>("edit", new ClickableRenderer.ItemClickListener<Question>() {
+            @Override
+            public void onItemClicked(Question item) {
+                editQuestion(item);
+            }
+        }));
+    }
+
+    private void editQuestion(Question q){
+        Dialog d = new Dialog();
+        QuestionForm form = context.getBean(QuestionForm.class);
+        form.setQuestion(q);
+        d.add(form);
+        form.addAfterSaveListener(() -> {
+            d.close();
+            fillGrid();
+        });
+        d.open();
     }
 
     private void fillGrid() {

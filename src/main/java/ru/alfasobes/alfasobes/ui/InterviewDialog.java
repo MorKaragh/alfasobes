@@ -7,6 +7,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.StyleSheet;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -23,6 +24,7 @@ import ru.alfasobes.alfasobes.model.InterviewStatus;
 import ru.alfasobes.alfasobes.util.Const;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 
 @Component
 @Scope("prototype")
@@ -84,6 +86,7 @@ public class InterviewDialog extends VerticalLayout {
 
         HorizontalLayout buttons = new HorizontalLayout();
         buttons.addClassName("bottom-buttons-menu");
+
         buttons.add(prev, goodAns, moderateAns, badAns, next);
 
         questionLayout.addClassName("question-layout");
@@ -114,6 +117,7 @@ public class InterviewDialog extends VerticalLayout {
 
         backToJournal.addClickListener((ComponentEventListener<ClickEvent<Button>>)
                 buttonClickEvent -> UI.getCurrent().getPage().reload());
+
     }
 
     private void acceptAnswer(InterviewAnswer ans) {
@@ -142,6 +146,7 @@ public class InterviewDialog extends VerticalLayout {
 
     public void setInterview(Interview interview) {
         this.interview = interview;
+        interview.getInterviewQuestions().sort(Comparator.comparing(question -> question.getQuestion().getCategories()));
 
         if (InterviewStatus.FINISHED.equals(interview.getStatus())) {
             throw new RuntimeException("this interview is finished!");
@@ -162,26 +167,26 @@ public class InterviewDialog extends VerticalLayout {
 
     class QuestionBlock extends VerticalLayout {
         QuestionBlock(InterviewQuestion question) {
+            add(new Html("<H4>" + question.getQuestion().getCategories() + "</H4>"));
             add(new Html("<H1>" + question.getQuestion().getQuestion() + "</H1>"));
             add(new Html("<div><p>" + question.getQuestion().getHint() + "</p></div>"));
             add(statusLabel(question));
         }
 
         private com.vaadin.flow.component.Component statusLabel(InterviewQuestion question) {
-            String label = "<H2>-</H2>";
             if (question.getAnswer() != null)
                 switch (question.getAnswer()) {
                     case BAD:
-                        label = "<H2>дан <span style=\"color:" + Const.RED + "\">" + InterviewAnswer.BAD.getDescription().toUpperCase() + "</span></H2>";
-                        break;
+                        return new Html("<H3>дан <span style=\"color:" + Const.RED + "\">"
+                                + InterviewAnswer.BAD.getDescription().toUpperCase() + "</span></H3>");
                     case GOOD:
-                        label = "<H2>дан <span style=\"color:" + Const.GREEN + "\">" + InterviewAnswer.GOOD.getDescription().toUpperCase() + "</span></H2>";
-                        break;
+                        return new Html("<H3>дан <span style=\"color:" + Const.GREEN + "\">"
+                                + InterviewAnswer.GOOD.getDescription().toUpperCase() + "</span></H3>");
                     case MODERATE:
-                        label = "<H2>дан <span style=\"color:" + Const.BLUE + "\">" + InterviewAnswer.MODERATE.getDescription().toUpperCase() + "</span></H2>";
-                        break;
+                        return new Html("<H3>дан <span style=\"color:" + Const.BLUE + "\">"
+                                + InterviewAnswer.MODERATE.getDescription().toUpperCase() + "</span></H3>");
                 }
-            return new Html(label);
+            return new Label();
         }
     }
 

@@ -37,4 +37,7 @@ public class Interview {
         return StringUtils.EMPTY;
     }
 
+    @Column(name = "comment", length = 4000)
+    private String comment;
+
 }
